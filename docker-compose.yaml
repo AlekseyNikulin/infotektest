@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  nginx:
+#    hostname: nginx
+#    container_name: nginx
+    # image: nginx
+    build: ./docker/nginx
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./:/var/www
+      - ./log/nginx:/var/log/nginx
+    depends_on:
+      - php-fpm
+    networks:
+      backend:
+        aliases:
+          - infotek
+
+  php-fpm:
+    hostname: php-fpm
+    build: ./docker/php-fpm
+    volumes:
+      - ./:/var/www:rw
+      - ./log/php-fpm:/var/log
+    ports:
+      - "9000:9000"
+    networks:
+      - backend
+
+  mysql:
+    image: mysql:8.4.5
+    user: root
+    restart: always
+    ports:
+      - "3306:3306"
+    cap_add:
+      - SYS_NICE
+    security_opt:
+      - seccomp:unconfined
+    volumes:
+      - ./docker/mysql/data:/var/lib/mysql
+      - ./docker/mysql/config:/etc/mysql/conf.d
+      - ./log/mysql:/var/log/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: infotek
+      # In the new version of docker, it is not required to declare USER_ROOT. Returns an error >:(
+      # MYSQL_USER: root
+      MYSQL_PASSWORD: secret
+      MYSQL_READ_BUFFER_SIZE: 2M
+      MYSQL_SORT_BUFFER_SIZE: 2M
+      MYSQL_KEY_BUFFER_SIZE: 64M
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
