@@ -17,8 +17,9 @@ class m250616_163250_create_subscription extends Migration
             table: self::TABLE,
             columns: [
                 'id' => $this->primaryKey(),
-                'user_id' => $this->integer(),
+                'user_id' => $this->integer()->defaultValue(null),
                 'author_id' => $this->integer(),
+                'phone' => $this->string()
             ],
         );
 

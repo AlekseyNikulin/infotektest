@@ -2,6 +2,7 @@
 
 namespace app\modules\test_job\controllers;
 
+use app\Integration\sms\SmsPilotService;
 use app\modules\test_job\models\Subscription;
 use yii\db\Exception;
 use yii\db\StaleObjectException;
@@ -54,8 +55,6 @@ class SubscriptionController extends Controller
     }
 
     /**
-     * Не имеет никакого смысла подписки неавторизованного пользователя.
-     *
      * @throws Exception
      * @throws BadRequestHttpException
      * @throws \Throwable
@@ -66,10 +65,22 @@ class SubscriptionController extends Controller
         $model->setAttributes(\Yii::$app->request->post());
 
         $userId = \Yii::$app->getUser()->getIdentity()?->getId();
-        $model->setAttribute('user_id', $userId);
+
+        if ($userId) {
+            $model->setAttribute('user_id', $userId);
+        }
 
         if (!$model->save()) {
             throw new BadRequestHttpException('Subscription not created');
+        }
+
+        $phone = $model->getAttribute('phone');
+
+        if ($phone) {
+            \Yii::$container->get(SmsPilotService::class)->send(
+                phone: $phone,
+                text: 'test',
+            );
         }
 
         return $this->asJson($model);

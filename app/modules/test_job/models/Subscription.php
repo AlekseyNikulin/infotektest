@@ -34,6 +34,7 @@ class Subscription extends ActiveRecord
         return [
             [['user_id', 'author_id'], 'default', 'value' => null],
             [['user_id', 'author_id'], 'integer'],
+            [['phone'], 'string'],
             [['author_id'], 'exist', 'skipOnError' => true, 'targetClass' => Authors::class, 'targetAttribute' => ['author_id' => 'id']],
             [['user_id'], 'exist', 'skipOnError' => true, 'targetClass' => User::class, 'targetAttribute' => ['user_id' => 'id']],
         ];
