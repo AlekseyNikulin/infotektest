@@ -31,7 +31,7 @@ class SmsPilotService
             ->get(
                 url: $this->url,
                 data: [
-                    'send' => urlencode($text),
+                    'send' => $text,
                     'to' => $phone,
                     'from' => $this->sender,
                     'apikey' => $this->apiKey,
