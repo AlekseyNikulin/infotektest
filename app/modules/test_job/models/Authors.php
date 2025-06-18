@@ -2,6 +2,7 @@
 
 namespace app\modules\test_job\models;
 
+use yii\base\InvalidConfigException;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 
@@ -49,9 +50,11 @@ class Authors extends ActiveRecord
      * Gets query for [[Bookings]].
      *
      * @return ActiveQuery
+     * @throws InvalidConfigException
      */
     public function getBookings(): ActiveQuery
     {
-        return $this->hasMany(Booking::class, ['author_id' => 'id']);
+        return $this->hasMany(Booking::class, ['id' => 'booking_id'])
+            ->viaTable('booking_authors', ['author_id' => 'id']);
     }
 }

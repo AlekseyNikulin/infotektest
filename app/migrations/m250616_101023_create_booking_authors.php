@@ -42,6 +42,13 @@ class m250616_101023_create_booking_authors extends Migration
             update: 'CASCADE',
         );
 
+        $this->createIndex(
+            name: 'booking_authors_idx_uniq',
+            table: self::TABLE,
+            columns: ['booking_id', 'author_id'],
+            unique: true,
+        );
+
         return true;
     }
 
@@ -57,6 +64,11 @@ class m250616_101023_create_booking_authors extends Migration
 
         $this->dropForeignKey(
             name: 'booking_authors_authors_fk',
+            table: self::TABLE,
+        );
+
+        $this->dropIndex(
+            name: 'booking_authors_idx_uniq',
             table: self::TABLE,
         );
 

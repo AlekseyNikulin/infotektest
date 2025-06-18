@@ -3,6 +3,7 @@
 namespace app\modules\test_job\controllers;
 
 use app\modules\test_job\models\Booking;
+use app\modules\test_job\models\BookingAuthors;
 use yii\db\Exception;
 use yii\db\StaleObjectException;
 use yii\filters\AccessControl;
@@ -42,7 +43,7 @@ class BookingController extends Controller
 
     public function actionIndex(): Response
     {
-        return $this->asJson(Booking::find()->with(['bookingAuthors'])->asArray()->all());
+        return $this->asJson(Booking::find()->with(['authors'])->asArray()->all());
     }
 
     /**
@@ -51,14 +52,30 @@ class BookingController extends Controller
      */
     public function actionCreate(): Response
     {
+        $request = \Yii::$app->request;
         $model = new Booking();
-        $model->setAttributes(\Yii::$app->request->post());
+        $model->setAttributes($request->post());
 
         if (!$model->save()) {
             throw new BadRequestHttpException('Booking not created');
         }
 
-        return $this->asJson($model);
+        foreach ($request->post('authors', []) as $author) {
+            $junction = new BookingAuthors();
+            $junction->setAttributes([
+                'booking_id' => $model->getId(),
+                'author_id' => $author['id'] ?? null,
+            ]);
+            $junction->save();
+        }
+
+        return $this->asJson(
+            Booking::find()
+                ->where(['id' => $model->getId()])
+                ->with(['authors'])
+                ->asArray()
+                ->one()
+        );
     }
 
     /**
@@ -68,7 +85,8 @@ class BookingController extends Controller
      */
     public function actionUpdate(): Response
     {
-        $params = \Yii::$app->request->post();
+        $request = \Yii::$app->request;
+        $params = $request->post();
 
         if (empty($params['id'])) {
             throw new BadRequestHttpException('Booking not update');
@@ -86,7 +104,28 @@ class BookingController extends Controller
             throw new BadRequestHttpException('Booking not update');
         }
 
-        return $this->asJson($model);
+        $authors = $request->post('authors', []);
+
+        if ($authors) {
+            BookingAuthors::deleteAll(['booking_id' => $model->getId()]);
+        }
+
+        foreach ($authors as $author) {
+            $junction = new BookingAuthors();
+            $junction->setAttributes([
+                'booking_id' => $model->getId(),
+                'author_id' => $author['id'] ?? null,
+            ]);
+            $junction->save();
+        }
+
+        return $this->asJson(
+            Booking::find()
+                ->where(['id' => $model->getId()])
+                ->with(['authors'])
+                ->asArray()
+                ->one()
+        );
     }
 
     /**

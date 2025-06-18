@@ -16,23 +16,12 @@ class m250616_100902_create_booking extends Migration
             table: self::TABLE,
             columns: [
                 'id' => $this->primaryKey(),
-                'author_id' => $this->integer(),
                 'name' => $this->string(),
                 'year' => $this->integer(4),
                 'description' => $this->text(),
                 'isbn' => $this->string(26),
                 'image' => $this->text(),
             ],
-        );
-
-        $this->addForeignKey(
-            name: 'booking_authors_fk',
-            table: self::TABLE,
-            columns: 'author_id',
-            refTable: self::REF_TABLE,
-            refColumns: 'id',
-            delete: 'CASCADE',
-            update: 'CASCADE',
         );
 
         $this->createIndex(
@@ -51,11 +40,6 @@ class m250616_100902_create_booking extends Migration
     {
         $this->dropIndex(
             name: 'booking_year_idx',
-            table: self::TABLE,
-        );
-
-        $this->dropForeignKey(
-            name: 'booking_authors_fk',
             table: self::TABLE,
         );
 

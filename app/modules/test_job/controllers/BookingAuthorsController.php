@@ -38,7 +38,7 @@ class BookingAuthorsController extends Controller
 
     public function actionIndex(): Response
     {
-        return $this->asJson(BookingAuthors::find()->with(['author','booking'])->asArray()->all());
+        return $this->asJson(BookingAuthors::find()->with(['author', 'booking'])->asArray()->all());
     }
 
     /**
@@ -47,11 +47,11 @@ class BookingAuthorsController extends Controller
      */
     public function actionCreate(): Response
     {
-        $model = new Booking();
+        $model = new BookingAuthors();
         $model->setAttributes(\Yii::$app->request->post());
 
         if (!$model->save()) {
-            throw new BadRequestHttpException('Booking not created');
+            throw new BadRequestHttpException('BookingAuthors not created');
         }
 
         return $this->asJson($model);
@@ -70,16 +70,16 @@ class BookingAuthorsController extends Controller
             throw new BadRequestHttpException('Booking not update');
         }
 
-        $model = Booking::findOne(['id' => $params['id']]);
+        $model = BookingAuthors::findOne(['id' => $params['id']]);
 
         if (!$model) {
-            throw new NotFoundHttpException('Booking not found');
+            throw new NotFoundHttpException('BookingAuthors not found');
         }
 
         $model->setAttributes($params);
 
         if (!$model->save()) {
-            throw new BadRequestHttpException('Booking not update');
+            throw new BadRequestHttpException('BookingAuthors not update');
         }
 
         return $this->asJson($model);
@@ -96,17 +96,17 @@ class BookingAuthorsController extends Controller
         $params = \Yii::$app->request->post();
 
         if (empty($params['id'])) {
-            throw new BadRequestHttpException('Booking not delete');
+            throw new BadRequestHttpException('BookingAuthors not delete');
         }
 
-        $model = Booking::findOne(['id' => $params['id']]);
+        $model = BookingAuthors::findOne(['id' => $params['id']]);
 
         if (!$model) {
-            throw new NotFoundHttpException('Booking not found');
+            throw new NotFoundHttpException('BookingAuthors not found');
         }
 
         if (!$model->delete()) {
-            throw new BadRequestHttpException('Booking not delete');
+            throw new BadRequestHttpException('BookingAuthors not delete');
         }
 
         return $this->asJson(['success' => true]);

@@ -2,6 +2,7 @@
 
 namespace app\modules\test_job\models;
 
+use yii\base\InvalidConfigException;
 use yii\db\ActiveQuery;
 use yii\db\ActiveRecord;
 
@@ -34,12 +35,12 @@ class Booking extends ActiveRecord
     public function rules(): array
     {
         return [
-            [['author_id', 'name', 'year', 'description', 'isbn', 'image'], 'default', 'value' => null],
-            [['author_id', 'year'], 'integer'],
+            [['name', 'year', 'description', 'isbn', 'image'], 'default', 'value' => null],
+            [['year'], 'integer'],
             [['description', 'image'], 'string'],
             [['name'], 'string', 'max' => 255],
             [['isbn'], 'string', 'max' => 26],
-            [['author_id'], 'exist', 'skipOnError' => true, 'targetClass' => Authors::class, 'targetAttribute' => ['author_id' => 'id']],
+            // [['author_id'], 'exist', 'skipOnError' => true, 'targetClass' => Authors::class, 'targetAttribute' => ['author_id' => 'id']],
         ];
     }
 
@@ -59,6 +60,11 @@ class Booking extends ActiveRecord
         ];
     }
 
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
     /**
      * Gets query for [[Author]].
      *
@@ -70,12 +76,14 @@ class Booking extends ActiveRecord
     }
 
     /**
-     * Gets query for [[BookingAuthors]].
+     * Gets query for [[Authors]].
      *
      * @return ActiveQuery
+     * @throws InvalidConfigException
      */
-    public function getBookingAuthors(): ActiveQuery
+    public function getAuthors(): ActiveQuery
     {
-        return $this->hasMany(BookingAuthors::class, ['booking_id' => 'id'])->with(['author']);
+        return $this->hasMany(Authors::class, ['id' => 'author_id'])
+            ->viaTable('booking_authors', ['booking_id' => 'id']);
     }
 }
